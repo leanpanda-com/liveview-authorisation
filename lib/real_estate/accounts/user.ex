@@ -1,6 +1,12 @@
 defmodule RealEstate.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
+  import EctoEnum
+
+  defenum(RolesEnum, :role, [
+    :user,
+    :admin
+  ])
 
   @derive {Inspect, except: [:password]}
   schema "users" do
@@ -9,6 +15,7 @@ defmodule RealEstate.Accounts.User do
     field :hashed_password, :string
     field :confirmed_at, :naive_datetime
 
+    field :role, RolesEnum, default: :user
     timestamps()
   end
 
