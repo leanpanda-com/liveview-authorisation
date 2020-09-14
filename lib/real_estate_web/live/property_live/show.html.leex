@@ -1,0 +1,32 @@
+<h1>Show Property</h1>
+
+<%= if @live_action in [:edit] do %>
+  <%= live_modal @socket, RealEstateWeb.PropertyLive.FormComponent,
+    id: @property.id,
+    title: @page_title,
+    action: @live_action,
+    property: @property,
+    return_to: Routes.property_show_path(@socket, :show, @property) %>
+<% end %>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @property.name %>
+  </li>
+
+  <li>
+    <strong>Price:</strong>
+    <%= @property.price %>
+  </li>
+
+  <li>
+    <strong>Description:</strong>
+    <%= @property.description %>
+  </li>
+
+</ul>
+
+<span><%= live_patch "Edit", to: Routes.property_show_path(@socket, :edit, @property), class: "button" %></span>
+<span><%= live_redirect "Back", to: Routes.property_index_path(@socket, :index) %></span>
