@@ -48,6 +48,7 @@ defmodule RealEstateWeb do
         layout: {RealEstateWeb.LayoutView, "live.html"}
 
       unquote(view_helpers())
+      import RealEstateWeb.LiveHelpers
     end
   end
 
