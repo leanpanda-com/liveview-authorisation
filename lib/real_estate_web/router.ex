@@ -1,7 +1,7 @@
 defmodule RealEstateWeb.Router do
   use RealEstateWeb, :router
-
   import RealEstateWeb.UserAuth
+  alias RealEstateWeb.EnsureRolePlug
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -15,6 +15,14 @@ defmodule RealEstateWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  pipeline :user do
+    plug EnsureRolePlug, [:admin, :user]
+  end
+
+  pipeline :admin do
+    plug EnsureRolePlug, :admin
   end
 
   # Other scopes may use custom stacks.
@@ -72,5 +80,17 @@ defmodule RealEstateWeb.Router do
     get "/users/confirm", UserConfirmationController, :new
     post "/users/confirm", UserConfirmationController, :create
     get "/users/confirm/:token", UserConfirmationController, :confirm
+  end
+
+  scope "/", RealEstateWeb do
+    pipe_through [:browser, :require_authenticated_user, :user]
+
+    live "/user_dashboard", UserDashboardLive, :index
+  end
+
+  scope "/", RealEstateWeb do
+    pipe_through [:browser, :require_authenticated_user, :admin]
+
+    live "/admin_dashboard", AdminDashboardLive, :index
   end
 end
