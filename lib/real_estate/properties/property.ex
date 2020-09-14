@@ -11,6 +11,12 @@ defmodule RealEstate.Properties.Property do
     timestamps()
   end
 
+  def create_changeset(property, attrs) do
+    property
+    |> cast(attrs, [:name, :price, :description, :user_id])
+    |> validate_required([:name, :price, :description, :user_id])
+  end
+
   @doc false
   def changeset(property, attrs) do
     property

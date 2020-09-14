@@ -2,18 +2,26 @@ defmodule RealEstate.PropertiesTest do
   use RealEstate.DataCase
 
   alias RealEstate.Properties
+  import RealEstate.AccountsFixtures
 
   describe "properties" do
     alias RealEstate.Properties.Property
 
     @valid_attrs %{description: "some description", name: "some name", price: "120.5"}
-    @update_attrs %{description: "some updated description", name: "some updated name", price: "456.7"}
+    @update_attrs %{
+      description: "some updated description",
+      name: "some updated name",
+      price: "456.7"
+    }
     @invalid_attrs %{description: nil, name: nil, price: nil}
 
     def property_fixture(attrs \\ %{}) do
+      user = user_fixture()
+
       {:ok, property} =
         attrs
         |> Enum.into(@valid_attrs)
+        |> Enum.into(%{user_id: user.id})
         |> Properties.create_property()
 
       property
@@ -30,14 +38,20 @@ defmodule RealEstate.PropertiesTest do
     end
 
     test "create_property/1 with valid data creates a property" do
-      assert {:ok, %Property{} = property} = Properties.create_property(@valid_attrs)
+      user = user_fixture()
+      create_attributes = Enum.into(%{user_id: user.id}, @valid_attrs)
+
+      assert {:ok, %Property{} = property} = Properties.create_property(create_attributes)
       assert property.description == "some description"
       assert property.name == "some name"
       assert property.price == Decimal.new("120.5")
+      assert property.user_id == user.id
     end
 
     test "create_property/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Properties.create_property(@invalid_attrs)
+      user = user_fixture()
+      create_attributes = Enum.into(%{user_id: user.id}, @invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Properties.create_property(create_attributes)
     end
 
     test "update_property/2 with valid data updates the property" do

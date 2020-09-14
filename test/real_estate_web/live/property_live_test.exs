@@ -15,7 +15,9 @@ defmodule RealEstateWeb.PropertyLiveTest do
   @invalid_attrs %{description: nil, name: nil, price: nil}
 
   defp fixture(:property) do
-    {:ok, property} = Properties.create_property(@create_attrs)
+    user = user_fixture()
+    create_attributes = Enum.into(%{user_id: user.id}, @create_attrs)
+    {:ok, property} = Properties.create_property(create_attributes)
     property
   end
 

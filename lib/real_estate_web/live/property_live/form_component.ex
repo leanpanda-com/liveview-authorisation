@@ -41,6 +41,9 @@ defmodule RealEstateWeb.PropertyLive.FormComponent do
   end
 
   defp save_property(socket, :new, property_params) do
+    current_user = socket.assigns.current_user
+    property_params = Map.put(property_params, "user_id", current_user.id)
+
     case Properties.create_property(property_params) do
       {:ok, _property} ->
         {:noreply,

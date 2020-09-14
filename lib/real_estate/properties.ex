@@ -51,7 +51,7 @@ defmodule RealEstate.Properties do
   """
   def create_property(attrs \\ %{}) do
     %Property{}
-    |> Property.changeset(attrs)
+    |> Property.create_changeset(attrs)
     |> Repo.insert()
   end
 
