@@ -2,11 +2,16 @@ defmodule RealEstateWeb.PropertyLiveTest do
   use RealEstateWeb.ConnCase
 
   import Phoenix.LiveViewTest
+  import RealEstate.AccountsFixtures
 
   alias RealEstate.Properties
 
   @create_attrs %{description: "some description", name: "some name", price: "120.5"}
-  @update_attrs %{description: "some updated description", name: "some updated name", price: "456.7"}
+  @update_attrs %{
+    description: "some updated description",
+    name: "some updated name",
+    price: "456.7"
+  }
   @invalid_attrs %{description: nil, name: nil, price: nil}
 
   defp fixture(:property) do
@@ -21,6 +26,11 @@ defmodule RealEstateWeb.PropertyLiveTest do
 
   describe "Index" do
     setup [:create_property]
+
+    setup %{conn: conn} do
+      conn = log_in_user(conn, user_fixture())
+      %{conn: conn}
+    end
 
     test "lists all properties", %{conn: conn, property: property} do
       {:ok, _index_live, html} = live(conn, Routes.property_index_path(conn, :index))
@@ -83,6 +93,11 @@ defmodule RealEstateWeb.PropertyLiveTest do
 
   describe "Show" do
     setup [:create_property]
+
+    setup %{conn: conn} do
+      conn = log_in_user(conn, user_fixture())
+      %{conn: conn}
+    end
 
     test "displays property", %{conn: conn, property: property} do
       {:ok, _show_live, html} = live(conn, Routes.property_show_path(conn, :show, property))
