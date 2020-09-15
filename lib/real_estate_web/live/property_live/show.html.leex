@@ -28,5 +28,9 @@
 
 </ul>
 
-<span><%= live_patch "Edit", to: Routes.property_show_path(@socket, :edit, @property), class: "button" %></span>
-<span><%= live_redirect "Back", to: Routes.property_index_path(@socket, :index) %></span>
+<%= if Roles.can?(@current_user, @property, :edit) do %>
+  <span><%= live_patch "Edit", to: Routes.property_show_path(@socket, :edit, @property), class: "button" %></span>
+<% end %>
+<%= if Roles.can?(@current_user, @property, :index) do %>
+  <span><%= live_redirect "Back", to: Routes.property_index_path(@socket, :index) %></span>
+<% end %>
