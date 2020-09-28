@@ -169,6 +169,61 @@ defmodule RealEstateWeb.PropertyLiveTest do
       assert {:error, {:redirect, %{to: "/"}}} =
                live(conn, Routes.property_index_path(conn, :edit, property))
     end
+
+    test "logs out when force logout on logged user", %{
+      conn: conn
+    } do
+      user = user_fixture()
+      conn = conn |> log_in_user(user)
+
+      {:ok, index_live, html} = live(conn, Routes.property_index_path(conn, :index))
+
+      assert html =~ "Listing Properties"
+      assert render(index_live) =~ "Listing Properties"
+
+      RealEstate.Accounts.logout_user(user)
+
+      # Assert our liveview process is down
+      ref = Process.monitor(index_live.pid)
+      assert_receive {:DOWN, ^ref, _, _, _}
+      refute Process.alive?(index_live.pid)
+
+      # Assert our liveview was redirected, following first to /users/force_logout, then to "/", and then to "/users/log_in"
+      assert_redirect(index_live, "/users/force_logout")
+
+      conn = get(conn, "/users/force_logout")
+      assert "/" = redir_path = redirected_to(conn, 302)
+      conn = get(recycle(conn), redir_path)
+
+      assert "/users/log_in" = redir_path = redirected_to(conn, 302)
+      conn = get(recycle(conn), redir_path)
+
+      assert html_response(conn, 200) =~
+               "You were logged out. Please login again to continue using our application."
+    end
+
+    test "doesn't log out when force logout on another user", %{
+      conn: conn
+    } do
+      user1 = user_fixture()
+      user2 = user_fixture()
+      conn = conn |> log_in_user(user2)
+
+      {:ok, index_live, html} = live(conn, Routes.property_index_path(conn, :index))
+
+      assert html =~ "Listing Properties"
+      assert render(index_live) =~ "Listing Properties"
+
+      RealEstate.Accounts.logout_user(user1)
+
+      # Assert our liveview is alive
+      ref = Process.monitor(index_live.pid)
+      refute_receive {:DOWN, ^ref, _, _, _}
+      assert Process.alive?(index_live.pid)
+
+      # If we are able to rerender the page it means nothing happened
+      assert render(index_live) =~ "Listing Properties"
+    end
   end
 
   describe "Show" do
@@ -257,6 +312,59 @@ defmodule RealEstateWeb.PropertyLiveTest do
     } do
       assert {:error, {:redirect, %{to: "/"}}} =
                live(conn, Routes.property_show_path(conn, :edit, property))
+    end
+
+    test "logs out when force logout on logged user", %{conn: conn, property: property} do
+      user = user_fixture()
+      conn = conn |> log_in_user(user)
+
+      {:ok, show_live, html} = live(conn, Routes.property_show_path(conn, :show, property))
+
+      assert html =~ "Show Property"
+      assert html =~ property.description
+      assert render(show_live) =~ property.description
+
+      RealEstate.Accounts.logout_user(user)
+
+      # Assert our liveview process is down
+      ref = Process.monitor(show_live.pid)
+      assert_receive {:DOWN, ^ref, _, _, _}
+      refute Process.alive?(show_live.pid)
+
+      # Assert our liveview was redirected, following first to /users/force_logout, then to "/", and then to "/users/log_in"
+      assert_redirect(show_live, "/users/force_logout")
+
+      conn = get(conn, "/users/force_logout")
+      assert "/" = redir_path = redirected_to(conn, 302)
+      conn = get(recycle(conn), redir_path)
+
+      assert "/users/log_in" = redir_path = redirected_to(conn, 302)
+      conn = get(recycle(conn), redir_path)
+
+      assert html_response(conn, 200) =~
+               "You were logged out. Please login again to continue using our application."
+    end
+
+    test "doesn't log out when force logout on another user", %{conn: conn, property: property} do
+      user1 = user_fixture()
+      user2 = user_fixture()
+      conn = conn |> log_in_user(user2)
+
+      {:ok, show_live, html} = live(conn, Routes.property_show_path(conn, :show, property))
+
+      assert html =~ "Show Property"
+      assert html =~ property.description
+      assert render(show_live) =~ property.description
+
+      RealEstate.Accounts.logout_user(user1)
+
+      # Assert our liveview is alive
+      ref = Process.monitor(show_live.pid)
+      refute_receive {:DOWN, ^ref, _, _, _}
+      assert Process.alive?(show_live.pid)
+
+      # If we are able to rerender the page it means nothing happened
+      assert render(show_live) =~ property.description
     end
   end
 end
