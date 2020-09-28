@@ -6,6 +6,7 @@ defmodule RealEstate.Accounts do
   import Ecto.Query, warn: false
   alias RealEstate.Repo
   alias RealEstate.Accounts.{User, UserToken, UserNotifier}
+  alias RealEstateWeb.UserAuth
 
   ## Database getters
 
@@ -95,6 +96,21 @@ defmodule RealEstate.Accounts do
     %User{}
     |> User.admin_registration_changeset(attrs)
     |> Repo.insert()
+  end
+
+  def logout_user(%User{} = user) do
+    # Delete all user tokens
+    Repo.delete_all(UserToken.user_and_contexts_query(user, :all))
+
+    # Broadcast to all liveviews to immediately disconnect the user
+    RealEstateWeb.Endpoint.broadcast_from(
+      self(),
+      UserAuth.pubsub_topic(),
+      "logout_user",
+      %{
+        user: user
+      }
+    )
   end
 
   @doc """

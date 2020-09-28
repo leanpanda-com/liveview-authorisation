@@ -5,6 +5,8 @@ defmodule RealEstateWeb.UserAuth do
   alias RealEstate.Accounts
   alias RealEstateWeb.Router.Helpers, as: Routes
 
+  @pubsub_topic "user_updates"
+
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change
   # the token expiry itself in UserToken.
@@ -138,6 +140,11 @@ defmodule RealEstateWeb.UserAuth do
       |> halt()
     end
   end
+
+  @doc """
+  Returns the pubsub topic name for receiving  notifications when a user updated
+  """
+  def pubsub_topic, do: @pubsub_topic
 
   defp maybe_store_return_to(%{method: "GET"} = conn) do
     %{request_path: request_path, query_string: query_string} = conn

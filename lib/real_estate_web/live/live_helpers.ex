@@ -3,6 +3,7 @@ defmodule RealEstateWeb.LiveHelpers do
   alias RealEstate.Accounts
   alias RealEstate.Accounts.User
   alias RealEstateWeb.Router.Helpers, as: Routes
+  alias RealEstateWeb.UserAuth
   import Phoenix.LiveView.Helpers
 
   @doc """
@@ -26,6 +27,8 @@ defmodule RealEstateWeb.LiveHelpers do
   end
 
   def assign_defaults(session, socket) do
+    RealEstateWeb.Endpoint.subscribe(UserAuth.pubsub_topic())
+
     socket =
       assign_new(socket, :current_user, fn ->
         find_current_user(session)

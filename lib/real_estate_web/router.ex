@@ -76,6 +76,7 @@ defmodule RealEstateWeb.Router do
   scope "/", RealEstateWeb do
     pipe_through [:browser]
 
+    get "/users/force_logout", UserSessionController, :force_logout
     delete "/users/log_out", UserSessionController, :delete
     get "/users/confirm", UserConfirmationController, :new
     post "/users/confirm", UserConfirmationController, :create

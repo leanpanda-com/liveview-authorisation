@@ -49,6 +49,19 @@ defmodule RealEstateWeb do
 
       unquote(view_helpers())
       import RealEstateWeb.LiveHelpers
+
+      alias RealEstate.Accounts.User
+
+      @impl true
+      def handle_info(%{event: "logout_user", payload: %{user: %User{id: id}}}, socket) do
+        with %User{id: ^id} <- socket.assigns.current_user do
+          {:noreply,
+           socket
+           |> redirect(to: Routes.user_session_path(socket, :force_logout))}
+        else
+          _any -> {:noreply, socket}
+        end
+      end
     end
   end
 
